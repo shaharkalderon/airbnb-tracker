@@ -1,22 +1,23 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { config } from "./config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function formatILS(n: number | null | undefined, opts: { decimals?: number } = {}) {
-  if (n == null || isNaN(Number(n))) return "₪0";
+  if (n == null || isNaN(Number(n))) return `${config.currencySymbol}0`;
   const decimals = opts.decimals ?? 2;
-  return "₪" + Number(n).toLocaleString("en-US", {
+  return config.currencySymbol + Number(n).toLocaleString(config.currencyLocale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
 }
 
 export function formatILSCompact(n: number | null | undefined) {
-  if (n == null || isNaN(Number(n))) return "₪0";
-  return "₪" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (n == null || isNaN(Number(n))) return `${config.currencySymbol}0`;
+  return config.currencySymbol + Number(n).toLocaleString(config.currencyLocale, { maximumFractionDigits: 0 });
 }
 
 export const MONTHS = [

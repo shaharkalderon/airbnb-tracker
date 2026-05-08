@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { config } from "@/lib/config";
 
 function LoginForm() {
   const router = useRouter();
@@ -36,7 +37,7 @@ function LoginForm() {
       className="w-full max-w-md bg-[var(--surface)] rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.08)] p-10 border border-[var(--border)]"
     >
       <div className="flex justify-center"><Logo size={56} /></div>
-      <h1 className="text-3xl font-bold text-[var(--fg)] text-center mt-6 tracking-tight">DorisDayInn</h1>
+      <h1 className="text-3xl font-bold text-[var(--fg)] text-center mt-6 tracking-tight">{config.brandName}</h1>
       <p className="text-sm text-[var(--fg-muted)] mb-8 text-center mt-2">Enter your password to continue</p>
       <input
         autoFocus

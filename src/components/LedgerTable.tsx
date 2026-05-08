@@ -175,7 +175,7 @@ function RowForm({ initial, categories, onSubmit, amountLabel }: { initial: Ledg
     <form onSubmit={submit} className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Date</Label><Input type="date" required value={form.date} onChange={(e) => set("date", e.target.value)} /></div>
-        <div><Label>{amountLabel} (₪)</Label><Input type="number" step="0.01" required value={form.amount} onChange={(e) => set("amount", Number(e.target.value))} /></div>
+        <div><Label>{amountLabel}</Label><Input type="number" step="0.01" required value={form.amount} onChange={(e) => set("amount", Number(e.target.value))} /></div>
       </div>
       <div><Label>Property</Label>
         <Select value={form.property} onChange={(e) => set("property", e.target.value)}>

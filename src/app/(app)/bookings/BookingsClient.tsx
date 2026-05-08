@@ -273,7 +273,7 @@ function BookingForm({ initial, onSubmit }: { initial: BookingInput; onSubmit: (
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Income (₪)</Label><Input type="number" step="0.01" value={form.income ?? ""} onChange={(e) => set("income", e.target.value ? Number(e.target.value) : null)} /></div>
+        <div><Label>Income</Label><Input type="number" step="0.01" value={form.income ?? ""} onChange={(e) => set("income", e.target.value ? Number(e.target.value) : null)} /></div>
         <div><Label>Booking Date</Label><Input type="date" value={form.booking_date ?? ""} onChange={(e) => set("booking_date", e.target.value)} /></div>
       </div>
       <div><Label>Details</Label><Input value={form.details ?? ""} onChange={(e) => set("details", e.target.value)} /></div>

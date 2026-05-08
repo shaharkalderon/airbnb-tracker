@@ -1,5 +1,6 @@
 "use client";
 import { useId } from "react";
+import { config } from "@/lib/config";
 
 export function Logo({ size = 32 }: { size?: number }) {
   const id = useId().replace(/[:]/g, "");
@@ -10,7 +11,7 @@ export function Logo({ size = 32 }: { size?: number }) {
       width={size}
       height={size}
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="DorisDayInn"
+      aria-label={config.brandName}
     >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
@@ -31,7 +32,7 @@ export function LogoLockup({ size = 32 }: { size?: number }) {
     <div className="flex items-center gap-2.5">
       <Logo size={size} />
       <div className="leading-tight">
-        <div className="font-bold text-[var(--fg)] text-base tracking-tight">DorisDayInn</div>
+        <div className="font-bold text-[var(--fg)] text-base tracking-tight">{config.brandName}</div>
         <div className="text-[10px] text-[var(--fg-muted)] uppercase tracking-wider">Property tracker</div>
       </div>
     </div>

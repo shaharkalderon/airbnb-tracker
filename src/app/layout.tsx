@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
+import { config } from "@/lib/config";
 
 const display = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -10,7 +11,7 @@ const display = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "DorisDayInn",
+  title: config.brandName,
   description: "Property tracker — bookings, income & expenses",
   manifest: "/manifest.webmanifest",
 };
