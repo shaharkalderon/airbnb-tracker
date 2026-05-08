@@ -195,12 +195,13 @@ function BookingCard({ booking, onEdit, onDelete, muted }: { booking: BookingInp
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mt-3 text-sm text-[var(--fg)]">
-            <CalIcon className="h-4 w-4 text-[var(--fg-muted)]" />
-            <span className="font-medium">{booking.check_in}</span>
-            <span className="text-[var(--fg-muted)]">→</span>
-            <span className="font-medium">{booking.check_out}</span>
-            <span className="text-[var(--fg-muted)]">· {nights} night{nights !== 1 ? "s" : ""}</span>
+          <div className="flex items-start gap-2 mt-3 text-sm text-[var(--fg)]">
+            <CalIcon className="h-4 w-4 text-[var(--fg-muted)] mt-0.5 shrink-0" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-medium tabular-nums">{booking.check_in}</span>
+              <span className="font-medium tabular-nums">{booking.check_out}</span>
+            </div>
+            <span className="text-[var(--fg-muted)] ml-auto whitespace-nowrap">{nights} night{nights !== 1 ? "s" : ""}</span>
           </div>
 
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border)]">

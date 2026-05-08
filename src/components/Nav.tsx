@@ -50,7 +50,9 @@ export default function Nav() {
   const navInner = (
     <>
       <div className="px-6 py-5 border-b border-[var(--border)] flex items-center justify-between">
-        <Logo size={32} />
+        <Link href="/" aria-label="Go to dashboard">
+          <Logo size={32} />
+        </Link>
         <button
           onClick={() => setMobileOpen(false)}
           className="md:hidden h-8 w-8 grid place-items-center rounded-full hover:bg-[var(--bg)]"
@@ -119,7 +121,9 @@ export default function Nav() {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Logo size={28} />
+        <Link href="/" aria-label="Go to dashboard">
+          <Logo size={28} />
+        </Link>
         <div className="w-9" />
       </header>
 

@@ -72,10 +72,10 @@ export default async function DashboardPage({
 
       <UpcomingReservations bookings={upcoming} />
 
-      <Card className="p-8 mb-6">
+      <Card className="p-5 md:p-8 mb-6 overflow-hidden">
         <div className="text-xs text-[var(--fg-muted)] uppercase tracking-wider font-semibold">Annual Profit · {year}</div>
         <div className="flex items-baseline gap-4 mt-2 flex-wrap">
-          <div className={`text-6xl md:text-7xl font-bold tracking-tight ${profit >= 0 ? "text-[var(--fg)]" : "text-[var(--danger)]"}`}>
+          <div className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight ${profit >= 0 ? "text-[var(--fg)]" : "text-[var(--danger)]"}`}>
             {profit < 0 ? "-" : ""}{formatILS(Math.abs(profit), { decimals: 0 })}
           </div>
           {annualIncome > 0 && (

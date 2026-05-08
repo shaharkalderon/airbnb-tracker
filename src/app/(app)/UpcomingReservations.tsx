@@ -40,7 +40,13 @@ function ReservationCard({ b }: { b: Booking }) {
   const nights = nightsBetween(b.check_in, b.check_out);
 
   const daysLabel = daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d`;
-  const urgent = daysLeft <= 7;
+  const tier: "green" | "yellow" | "red" =
+    daysLeft <= 3 ? "green" : daysLeft <= 7 ? "yellow" : "red";
+  const tierClass = {
+    green: "bg-[#E6F4EA] text-[#067647]",
+    yellow: "bg-[#FEF3C7] text-[#B25E09]",
+    red: "bg-[#FFE5EB] text-[var(--brand)]",
+  }[tier];
 
   return (
     <Card className="overflow-hidden">
@@ -49,7 +55,7 @@ function ReservationCard({ b }: { b: Booking }) {
         onClick={() => setOpen((v) => !v)}
         className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-[var(--surface-2)] transition"
       >
-        <div className={`shrink-0 min-w-14 px-2 text-center rounded-lg py-2 ${urgent ? "bg-[var(--brand)] text-white" : "bg-[#FFE5EB] text-[var(--brand)]"}`}>
+        <div className={`shrink-0 min-w-14 px-2 text-center rounded-lg py-2 ${tierClass}`}>
           <div className="text-lg font-bold leading-none tabular-nums">{daysLabel}</div>
         </div>
         <div className="min-w-0 flex-1">
@@ -127,7 +133,7 @@ export default function UpcomingReservations({ bookings }: { bookings: Booking[]
         <h2 className="text-sm font-semibold text-[var(--fg)] uppercase tracking-wider">Upcoming reservations</h2>
         <span className="text-xs text-[var(--fg-muted)]">Next {bookings.length}</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
         {bookings.map((b) => (
           <ReservationCard key={b.id} b={b} />
         ))}
