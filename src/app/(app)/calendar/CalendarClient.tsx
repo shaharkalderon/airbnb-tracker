@@ -3,9 +3,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader, Select, Button } from "@/components/ui";
 import Drawer from "@/components/Drawer";
-import { PROPERTIES, MONTHS_LONG, MONTHS, formatILS, formatILSCompact } from "@/lib/utils";
+import { PROPERTIES, MONTHS_LONG, MONTHS, formatILS, formatILSCompact, formatDate } from "@/lib/utils";
 import { getHolidaysForYear } from "@/lib/holidays";
-import { ChevronLeft, ChevronRight, User, Calendar as CalIcon, Users as UsersIcon, Tag, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Calendar as CalIcon, Users as UsersIcon, Tag, Plus, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Booking = {
@@ -17,6 +17,7 @@ type Booking = {
   property: string;
   channel: string | null;
   income: number | null;
+  booking_date?: string | null;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -319,10 +320,13 @@ function DayDrawer({
             </div>
 
             <div className="border border-[var(--border)] rounded-2xl divide-y divide-[var(--border)]">
-              <DetailRow icon={<CalIcon className="h-4 w-4" />} label="Check-in" value={booking.check_in} />
-              <DetailRow icon={<CalIcon className="h-4 w-4" />} label="Check-out" value={booking.check_out} />
+              <DetailRow icon={<CalIcon className="h-4 w-4" />} label="Check-in" value={formatDate(booking.check_in)} />
+              <DetailRow icon={<CalIcon className="h-4 w-4" />} label="Check-out" value={formatDate(booking.check_out)} />
               <DetailRow icon={<UsersIcon className="h-4 w-4" />} label="Guests" value={String(booking.guests ?? "—")} />
               <DetailRow icon={<Tag className="h-4 w-4" />} label="Nights" value={String(nights ?? "—")} />
+              {booking.booking_date && (
+                <DetailRow icon={<Bookmark className="h-4 w-4" />} label="Booked on" value={formatDate(booking.booking_date)} />
+              )}
             </div>
 
             <div className="border border-[var(--border)] rounded-2xl p-5 bg-[var(--bg)]">

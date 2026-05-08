@@ -19,14 +19,11 @@ export default async function DashboardPage({
   const year = Number(sp.year) || allYears[allYears.length - 1] || new Date().getFullYear();
   const { bookings, income, expenses } = await fetchAllForYear(year);
 
+  void bookings;
   const incomeMonthly = aggregateByMonthProperty(income, "amount");
-  const bookingsIncomeMonthly = aggregateByMonthProperty(
-    bookings.map((b) => ({ ...b, amount: Number(b.income ?? 0) })),
-    "amount"
-  );
   const totalIncomeMonthly = MONTHS.map((m, i) => ({
     month: m,
-    Income: incomeMonthly[i].Total + bookingsIncomeMonthly[i].Total,
+    Income: incomeMonthly[i].Total,
     Expenses: 0,
   }));
   const expensesMonthly = aggregateByMonthProperty(expenses, "amount");
@@ -43,13 +40,11 @@ export default async function DashboardPage({
   for (const y of allYears) {
     const start = `${y}-01-01`;
     const end = `${y}-12-31`;
-    const [{ data: inc }, { data: bk }, { data: exp }] = await Promise.all([
+    const [{ data: inc }, { data: exp }] = await Promise.all([
       sb.from("income").select("amount").gte("date", start).lte("date", end),
-      sb.from("bookings").select("income").gte("check_in", start).lte("check_in", end),
       sb.from("expenses").select("amount").gte("date", start).lte("date", end),
     ]);
-    const incTot = (inc ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0)
-      + (bk ?? []).reduce((s, r) => s + Number(r.income ?? 0), 0);
+    const incTot = (inc ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
     const expTot = (exp ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
     yearTotals.push({ year: y, Income: incTot, Expenses: expTot });
   }

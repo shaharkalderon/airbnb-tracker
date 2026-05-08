@@ -1,8 +1,8 @@
 "use client";
 import { useState, useTransition, useMemo } from "react";
 import { Button, Input, Select, Label, Modal, PageHeader, EmptyState } from "@/components/ui";
-import { PROPERTIES, CHANNELS, formatILS, nightsBetween } from "@/lib/utils";
-import { Plus, Pencil, Trash2, User, MapPin, Calendar as CalIcon, Search, X } from "lucide-react";
+import { PROPERTIES, CHANNELS, formatILS, nightsBetween, formatDate } from "@/lib/utils";
+import { Plus, Pencil, Trash2, User, MapPin, Calendar as CalIcon, Search, X, Bookmark } from "lucide-react";
 import { saveBooking, deleteBooking, type BookingInput } from "./actions";
 
 type Booking = BookingInput & { id: number };
@@ -198,8 +198,8 @@ function BookingCard({ booking, onEdit, onDelete, muted }: { booking: BookingInp
           <div className="flex items-start gap-2 mt-3 text-sm text-[var(--fg)]">
             <CalIcon className="h-4 w-4 text-[var(--fg-muted)] mt-0.5 shrink-0" />
             <div className="flex flex-col leading-tight">
-              <span className="font-medium tabular-nums">{booking.check_in}</span>
-              <span className="font-medium tabular-nums">{booking.check_out}</span>
+              <span className="font-medium tabular-nums">{formatDate(booking.check_in)}</span>
+              <span className="font-medium tabular-nums">{formatDate(booking.check_out)}</span>
             </div>
             <span className="text-[var(--fg-muted)] ml-auto whitespace-nowrap">{nights} night{nights !== 1 ? "s" : ""}</span>
           </div>
@@ -218,6 +218,13 @@ function BookingCard({ booking, onEdit, onDelete, muted }: { booking: BookingInp
               )}
             </div>
           </div>
+
+          {booking.booking_date && (
+            <div className="mt-3 text-xs text-[var(--fg-muted)] flex items-center gap-1.5">
+              <Bookmark className="h-3 w-3" />
+              <span className="tabular-nums">Booked {formatDate(booking.booking_date)}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
