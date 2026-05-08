@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PageHeader, Select, Button } from "@/components/ui";
 import Drawer from "@/components/Drawer";
 import { PROPERTIES, MONTHS_LONG, MONTHS, formatILS, formatILSCompact } from "@/lib/utils";
+import { getHolidaysForYear } from "@/lib/holidays";
 import { ChevronLeft, ChevronRight, User, Calendar as CalIcon, Users as UsersIcon, Tag, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -130,6 +131,8 @@ export default function CalendarClient({ bookings }: { bookings: Booking[] }) {
   const segmentsLane0 = useMemo(() => computeSegments(0), [cells, bookingByDay]);
   const segmentsLane1 = useMemo(() => computeSegments(1), [cells, bookingByDay]);
 
+  const holidays = useMemo(() => getHolidaysForYear(year), [year]);
+
   function nextMonth() {
     if (month === 11) { setMonth(0); setYear(year + 1); } else setMonth(month + 1);
   }
@@ -203,16 +206,29 @@ export default function CalendarClient({ bookings }: { bookings: Booking[] }) {
                 isSelected && !isToday && "border-[#FF385C] ring-1 ring-[#FF385C]"
               )}
             >
-              <div
-                className={cn(
-                  "text-sm font-semibold h-7 w-7 grid place-items-center rounded-full",
-                  isToday && "bg-[#FF385C] text-white",
-                  !isToday && isSelected && "bg-gradient-to-tr from-[#FF385C] via-[#E61E4D] to-[#BD1E59] text-white",
-                  !isToday && !isSelected && (isPast ? "text-[var(--fg-faint)]" : "text-[var(--fg)]")
+              <div className="flex items-center gap-1.5 w-full min-w-0">
+                <div
+                  className={cn(
+                    "text-sm font-semibold h-7 w-7 grid place-items-center rounded-full shrink-0",
+                    isToday && "bg-[#FF385C] text-white",
+                    !isToday && isSelected && "bg-gradient-to-tr from-[#FF385C] via-[#E61E4D] to-[#BD1E59] text-white",
+                    !isToday && !isSelected && (isPast ? "text-[var(--fg-faint)]" : "text-[var(--fg)]")
+                  )}
+                >
+                  {cell.day}
+                </div>
+                {holidays.get(iso) && (
+                  <div className="hidden md:block text-[10px] leading-tight font-semibold text-[#1D4ED8] bg-[#DBEAFE] border border-[#93C5FD] rounded-md px-1.5 py-0.5 truncate min-w-0 flex-1">
+                    {holidays.get(iso)!.join(" · ")}
+                  </div>
                 )}
-              >
-                {cell.day}
               </div>
+              {holidays.get(iso) && (
+                <div
+                  className="md:hidden absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-[#1D4ED8]"
+                  aria-label="Holiday"
+                />
+              )}
 
               {seg0 && <BookingPill booking={seg0.booking} span={seg0.span} position="upper" />}
               {seg1 && <BookingPill booking={seg1.booking} span={seg1.span} position="lower" />}
@@ -242,6 +258,7 @@ export default function CalendarClient({ bookings }: { bookings: Booking[] }) {
         date={selectedDate}
         booking={selectedDate ? (bookingByDay.get(selectedDate)?.[0] ?? bookingByDay.get(selectedDate)?.[1] ?? null) : null}
         property={property}
+        holidayNames={selectedDate ? holidays.get(selectedDate) ?? null : null}
       />
     </div>
   );
@@ -253,12 +270,14 @@ function DayDrawer({
   date,
   booking,
   property,
+  holidayNames,
 }: {
   open: boolean;
   onClose: () => void;
   date: string | null;
   booking: Booking | null;
   property: string;
+  holidayNames: string[] | null;
 }) {
   if (!date) return <Drawer open={open} onClose={onClose} title="" >{null}</Drawer>;
   const d = toDate(date);
@@ -279,6 +298,13 @@ function DayDrawer({
         <div className="text-sm text-[var(--fg-muted)]">
           Property <span className="font-semibold text-[var(--fg)] ml-1">{property}</span>
         </div>
+
+        {holidayNames && holidayNames.length > 0 && (
+          <div className="rounded-2xl border border-[#93C5FD] bg-[#DBEAFE] px-4 py-3">
+            <div className="text-[10px] uppercase tracking-wider font-semibold text-[#1D4ED8] mb-1">Holiday</div>
+            <div className="text-sm font-semibold text-[#1E3A8A]">{holidayNames.join(" · ")}</div>
+          </div>
+        )}
 
         {booking ? (
           <div className="space-y-5">

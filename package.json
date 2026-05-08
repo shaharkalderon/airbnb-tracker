@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hebcal/core": "^6.4.1",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.3",
     "class-variance-authority": "^0.7.1",
