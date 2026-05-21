@@ -53,19 +53,28 @@ export default async function DashboardPage({
   const incomeDelta = prevIncome > 0 ? ((annualIncome - prevIncome) / prevIncome) * 100 : null;
 
   const todayISO = new Date().toISOString().slice(0, 10);
-  const { data: upcomingRaw } = await sb
-    .from("bookings")
-    .select("*")
-    .gte("check_in", todayISO)
-    .order("check_in", { ascending: true })
-    .limit(2);
+  const [{ data: upcomingRaw }, { data: ongoingRaw }] = await Promise.all([
+    sb
+      .from("bookings")
+      .select("*")
+      .gt("check_in", todayISO)
+      .order("check_in", { ascending: true })
+      .limit(2),
+    sb
+      .from("bookings")
+      .select("*")
+      .lte("check_in", todayISO)
+      .gt("check_out", todayISO)
+      .order("check_in", { ascending: true }),
+  ]);
   const upcoming = upcomingRaw ?? [];
+  const ongoing = ongoingRaw ?? [];
 
   return (
     <div>
       <PageHeader title="Dashboard" year={<YearPicker year={year} years={allYears} />} />
 
-      <UpcomingReservations bookings={upcoming} />
+      <UpcomingReservations bookings={upcoming} ongoing={ongoing} />
 
       <Card className="p-5 md:p-8 mb-6 overflow-hidden">
         <div className="text-xs text-[var(--fg-muted)] uppercase tracking-wider font-semibold">Annual Profit · {year}</div>

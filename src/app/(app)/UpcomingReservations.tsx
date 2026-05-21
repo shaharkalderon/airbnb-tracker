@@ -29,24 +29,39 @@ function fmtDDMM(d: string | Date) {
   return `${dd}/${mm}`;
 }
 
-function ReservationCard({ b }: { b: Booking }) {
+function daysBetween(a: Date, b: Date) {
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+function ReservationCard({ b, variant }: { b: Booking; variant: "upcoming" | "ongoing" }) {
   const [open, setOpen] = useState(false);
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const ci = new Date(b.check_in);
   ci.setHours(0, 0, 0, 0);
-  const daysLeft = Math.round((ci.getTime() - startOfToday.getTime()) / 86400000);
+  const co = new Date(b.check_out);
+  co.setHours(0, 0, 0, 0);
   const nights = nightsBetween(b.check_in, b.check_out);
 
-  const daysLabel = daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d`;
-  const tier: "green" | "yellow" | "red" =
-    daysLeft <= 3 ? "green" : daysLeft <= 7 ? "yellow" : "red";
-  const tierClass = {
-    green: "bg-[#E6F4EA] text-[#067647]",
-    yellow: "bg-[#FEF3C7] text-[#B25E09]",
-    red: "bg-[#FFE5EB] text-[var(--brand)]",
-  }[tier];
+  let label: string;
+  let tierClass: string;
+  if (variant === "upcoming") {
+    const daysLeft = daysBetween(startOfToday, ci);
+    label = daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d`;
+    const tier: "green" | "yellow" | "red" =
+      daysLeft <= 3 ? "green" : daysLeft <= 7 ? "yellow" : "red";
+    tierClass = {
+      green: "bg-[#E6F4EA] text-[#067647]",
+      yellow: "bg-[#FEF3C7] text-[#B25E09]",
+      red: "bg-[#FFE5EB] text-[var(--brand)]",
+    }[tier];
+  } else {
+    // ongoing — days until check-out
+    const daysToCheckout = daysBetween(startOfToday, co);
+    label = daysToCheckout === 0 ? "Leaves today" : daysToCheckout === 1 ? "Leaves tmrw" : `${daysToCheckout}d left`;
+    tierClass = "bg-[#E0F2FE] text-[#075985]"; // calm blue
+  }
 
   return (
     <Card className="overflow-hidden">
@@ -55,8 +70,8 @@ function ReservationCard({ b }: { b: Booking }) {
         onClick={() => setOpen((v) => !v)}
         className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-[var(--surface-2)] transition"
       >
-        <div className={`shrink-0 min-w-14 px-2 text-center rounded-lg py-2 ${tierClass}`}>
-          <div className="text-lg font-bold leading-none tabular-nums">{daysLabel}</div>
+        <div className={`shrink-0 px-2.5 text-center rounded-lg py-2 ${tierClass}`}>
+          <div className="text-sm font-bold leading-tight tabular-nums whitespace-nowrap">{label}</div>
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold text-[var(--fg)] truncate">
@@ -125,19 +140,43 @@ function Field({ label, icon, children }: { label: string; icon?: React.ReactNod
   );
 }
 
-export default function UpcomingReservations({ bookings }: { bookings: Booking[] }) {
-  if (!bookings.length) return null;
+export default function UpcomingReservations({
+  bookings,
+  ongoing = [],
+}: {
+  bookings: Booking[];
+  ongoing?: Booking[];
+}) {
+  if (!bookings.length && !ongoing.length) return null;
   return (
-    <div className="mb-6">
-      <div className="flex items-baseline justify-between mb-2">
-        <h2 className="text-sm font-semibold text-[var(--fg)] uppercase tracking-wider">Upcoming reservations</h2>
-        <span className="text-xs text-[var(--fg-muted)]">Next {bookings.length}</span>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
-        {bookings.map((b) => (
-          <ReservationCard key={b.id} b={b} />
-        ))}
-      </div>
+    <div className="mb-6 space-y-4">
+      {ongoing.length > 0 && (
+        <div>
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-sm font-semibold text-[var(--fg)] uppercase tracking-wider">Ongoing reservations</h2>
+            <span className="text-xs text-[var(--fg-muted)]">{ongoing.length} active</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+            {ongoing.map((b) => (
+              <ReservationCard key={b.id} b={b} variant="ongoing" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {bookings.length > 0 && (
+        <div>
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-sm font-semibold text-[var(--fg)] uppercase tracking-wider">Upcoming reservations</h2>
+            <span className="text-xs text-[var(--fg-muted)]">Next {bookings.length}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+            {bookings.map((b) => (
+              <ReservationCard key={b.id} b={b} variant="upcoming" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
