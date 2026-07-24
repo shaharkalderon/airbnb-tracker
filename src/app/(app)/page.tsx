@@ -36,37 +36,46 @@ export default async function DashboardPage({
 
   const prevYear = year - 1;
   const sb = supabaseAdmin();
-  const yearTotals: { year: number; Income: number; Expenses: number }[] = [];
-  for (const y of allYears) {
-    const start = `${y}-01-01`;
-    const end = `${y}-12-31`;
-    const [{ data: inc }, { data: exp }] = await Promise.all([
-      sb.from("income").select("amount").gte("date", start).lte("date", end),
-      sb.from("expenses").select("amount").gte("date", start).lte("date", end),
+  const todayISO = new Date().toISOString().slice(0, 10);
+
+  // One query each for all-time income/expenses (bucketed by year in memory)
+  // plus the upcoming/ongoing bookings — all run in parallel.
+  const [{ data: allInc }, { data: allExp }, { data: upcomingRaw }, { data: ongoingRaw }] =
+    await Promise.all([
+      sb.from("income").select("amount, date"),
+      sb.from("expenses").select("amount, date"),
+      sb
+        .from("bookings")
+        .select("*")
+        .gt("check_in", todayISO)
+        .order("check_in", { ascending: true })
+        .limit(2),
+      sb
+        .from("bookings")
+        .select("*")
+        .lte("check_in", todayISO)
+        .gt("check_out", todayISO)
+        .order("check_in", { ascending: true }),
     ]);
-    const incTot = (inc ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
-    const expTot = (exp ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
-    yearTotals.push({ year: y, Income: incTot, Expenses: expTot });
-  }
+
+  const totalsByYear = new Map<number, { Income: number; Expenses: number }>();
+  for (const y of allYears) totalsByYear.set(y, { Income: 0, Expenses: 0 });
+  const bucket = (rows: { amount?: number; date?: string }[] | null, key: "Income" | "Expenses") => {
+    for (const r of rows ?? []) {
+      if (!r.date) continue;
+      const y = new Date(r.date).getFullYear();
+      const t = totalsByYear.get(y);
+      if (t) t[key] += Number(r.amount ?? 0);
+    }
+  };
+  bucket(allInc, "Income");
+  bucket(allExp, "Expenses");
+  const yearTotals = allYears.map((y) => ({ year: y, ...totalsByYear.get(y)! }));
+
   const prev = yearTotals.find((y) => y.year === prevYear);
   const prevIncome = prev?.Income ?? 0;
   const incomeDelta = prevIncome > 0 ? ((annualIncome - prevIncome) / prevIncome) * 100 : null;
 
-  const todayISO = new Date().toISOString().slice(0, 10);
-  const [{ data: upcomingRaw }, { data: ongoingRaw }] = await Promise.all([
-    sb
-      .from("bookings")
-      .select("*")
-      .gt("check_in", todayISO)
-      .order("check_in", { ascending: true })
-      .limit(2),
-    sb
-      .from("bookings")
-      .select("*")
-      .lte("check_in", todayISO)
-      .gt("check_out", todayISO)
-      .order("check_in", { ascending: true }),
-  ]);
   const upcoming = upcomingRaw ?? [];
   const ongoing = ongoingRaw ?? [];
 

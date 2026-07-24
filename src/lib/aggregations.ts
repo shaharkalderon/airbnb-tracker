@@ -31,10 +31,12 @@ export async function fetchAllForYear(year: number) {
 
 export async function fetchAllYears(): Promise<number[]> {
   const sb = supabaseAdmin();
-  const { data: b } = await sb.from("bookings").select("check_in").order("check_in", { ascending: true }).limit(1);
-  const { data: bMax } = await sb.from("bookings").select("check_in").order("check_in", { ascending: false }).limit(1);
-  const { data: e } = await sb.from("expenses").select("date").order("date", { ascending: true }).limit(1);
-  const { data: eMax } = await sb.from("expenses").select("date").order("date", { ascending: false }).limit(1);
+  const [{ data: b }, { data: bMax }, { data: e }, { data: eMax }] = await Promise.all([
+    sb.from("bookings").select("check_in").order("check_in", { ascending: true }).limit(1),
+    sb.from("bookings").select("check_in").order("check_in", { ascending: false }).limit(1),
+    sb.from("expenses").select("date").order("date", { ascending: true }).limit(1),
+    sb.from("expenses").select("date").order("date", { ascending: false }).limit(1),
+  ]);
   const min = Math.min(
     b?.[0]?.check_in ? new Date(b[0].check_in).getFullYear() : 9999,
     e?.[0]?.date ? new Date(e[0].date).getFullYear() : 9999
