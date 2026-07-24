@@ -1,13 +1,11 @@
 import { Card, PageHeader } from "@/components/ui";
 import YearPicker from "@/components/YearPicker";
-import { fetchAllForYear, fetchAllYears, aggregateByMonthProperty } from "@/lib/aggregations";
+import { fetchAllForYear, fetchAllYears, fetchAllTotals, aggregateByMonthProperty } from "@/lib/aggregations";
 import { formatILSCompact, formatILS, MONTHS } from "@/lib/utils";
 import DashboardCharts from "./DashboardCharts";
 import UpcomingReservations from "./UpcomingReservations";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-
-export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({
   searchParams,
@@ -38,12 +36,11 @@ export default async function DashboardPage({
   const sb = supabaseAdmin();
   const todayISO = new Date().toISOString().slice(0, 10);
 
-  // One query each for all-time income/expenses (bucketed by year in memory)
-  // plus the upcoming/ongoing bookings — all run in parallel.
-  const [{ data: allInc }, { data: allExp }, { data: upcomingRaw }, { data: ongoingRaw }] =
+  // Cached all-time income/expenses (bucketed by year in memory) plus the
+  // upcoming/ongoing bookings — all run in parallel.
+  const [{ income: allInc, expenses: allExp }, { data: upcomingRaw }, { data: ongoingRaw }] =
     await Promise.all([
-      sb.from("income").select("amount, date"),
-      sb.from("expenses").select("amount, date"),
+      fetchAllTotals(),
       sb
         .from("bookings")
         .select("*")

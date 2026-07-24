@@ -1,6 +1,7 @@
 "use server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache";
 
 export type IncomeInput = {
   id?: number;
@@ -39,6 +40,7 @@ export async function saveIncome(input: IncomeInput) {
     const { error } = await sb.from("income").insert(payload);
     if (error) throw error;
   }
+  updateTag(CACHE_TAGS.income);
   revalidatePath("/income");
   revalidatePath("/");
   revalidatePath("/monthly-overview");
@@ -47,6 +49,7 @@ export async function saveIncome(input: IncomeInput) {
 export async function deleteIncome(id: number) {
   const { error } = await supabaseAdmin().from("income").delete().eq("id", id);
   if (error) throw error;
+  updateTag(CACHE_TAGS.income);
   revalidatePath("/income");
   revalidatePath("/");
 }

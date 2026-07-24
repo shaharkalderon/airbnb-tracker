@@ -1,6 +1,7 @@
 "use server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache";
 
 export type ExpenseInput = {
   id?: number;
@@ -39,6 +40,7 @@ export async function saveExpense(input: ExpenseInput) {
     const { error } = await sb.from("expenses").insert(payload);
     if (error) throw error;
   }
+  updateTag(CACHE_TAGS.expenses);
   revalidatePath("/expenses");
   revalidatePath("/expenses-overview");
   revalidatePath("/");
@@ -47,6 +49,7 @@ export async function saveExpense(input: ExpenseInput) {
 export async function deleteExpense(id: number) {
   const { error } = await supabaseAdmin().from("expenses").delete().eq("id", id);
   if (error) throw error;
+  updateTag(CACHE_TAGS.expenses);
   revalidatePath("/expenses");
   revalidatePath("/expenses-overview");
   revalidatePath("/");

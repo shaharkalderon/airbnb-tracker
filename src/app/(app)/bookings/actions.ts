@@ -1,6 +1,7 @@
 "use server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache";
 
 export type BookingInput = {
   id?: number;
@@ -46,6 +47,7 @@ export async function saveBooking(input: BookingInput) {
     const { error } = await sb.from("bookings").insert(payload);
     if (error) throw error;
   }
+  updateTag(CACHE_TAGS.bookings);
   revalidatePath("/bookings");
   revalidatePath("/calendar");
   revalidatePath("/");
@@ -54,6 +56,7 @@ export async function saveBooking(input: BookingInput) {
 export async function deleteBooking(id: number) {
   const { error } = await supabaseAdmin().from("bookings").delete().eq("id", id);
   if (error) throw error;
+  updateTag(CACHE_TAGS.bookings);
   revalidatePath("/bookings");
   revalidatePath("/calendar");
   revalidatePath("/");
